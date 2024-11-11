@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Bản đồ nền</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<!--Download Leaflet: https://unpkg.com/browse/leaflet@1.6.0/dist/ -->
+    <link rel="stylesheet" href="css/leaflet.css">  <!--liên kết css của leaflet-->
+    <script src="js/leaflet.js"></script>			<!--liên kết js của leaflet-->
+	<script src="js/jquery-3.5.1.min.js"></script>
+
+    <style>					<!--tạo style cho trang web-->
+        body {
+            padding: 0;
+            margin: 0;
+        }
+        html, body, #map {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>	<!--thêm thẻ div để chứa bản đồ-->
+</body>
+<script>
+        
+	//Khai báo đối tượng chính chứa bản đồ gắn vào thẻ div tên "map"
+    var mapObject = L.map("map", {center: [10.030249, 105.772097], zoom: 17});
+	//hoặc: var mapObject = L.map('map').setView([10.030249, 105.772097], 17);
+
+	//Bản đồ nền dạng Raster
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", 
+        {attribution: '&copy; <a href="http://' + 
+        'www.openstreetmap.org/copyright">OpenStreetMap</a>'}
+    ).addTo(mapObject);
+	
+	$.getJSON('/dbtogeojson', function(data) {
+
+		/*Không có Popup
+		L.geoJSON(data).addTo(mapObject);
+		*/
+		
+		/*Có Popup cách 2*/
+		L.geoJSON(data).bindPopup((f) => '<h1>'+f.feature.properties.name+'</h1>').addTo(mapObject);
+		
+	});
+
+</script>
+</html>

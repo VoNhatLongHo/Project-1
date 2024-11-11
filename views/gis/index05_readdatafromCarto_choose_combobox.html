@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Bản đồ nền</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<link rel="shortcut icon" type="image/x-icon" href="images/blueicon.png" />	
+    <link rel="stylesheet" href="css/leaflet.css">  <!--liên kết css của leaflet-->
+    <script src="js/leaflet.js"></script>			<!--liên kết js của leaflet-->
+    <script src="js/jquery.js"></script>	<!--liên kết js của jquery-->
+    <style>											<!--tạo style cho trang web-->
+        body {
+            padding: 0;
+            margin: 0;
+        }
+        html, body, #map {
+            height: 100%;
+            width: 100%;
+        }
+        #combobox1 {
+            padding: 6px 8px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            background-color: rgba(255,255,255,0.8);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>						<!--thêm thẻ div để chứa bản đồ-->
+</body>
+<script>
+    var mapObject = L.map("map", {center: [10.030249, 105.772097], zoom: 17});
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", 
+        {attribution: '&copy; <a href="http://' + 
+        'www.openstreetmap.org/copyright">OpenStreetMap</a>'}
+    ).addTo(mapObject);
+	
+	//Khai báo user và loại kq trả về trên Carto
+	var cartoUserName = "duckhoact";
+	var urlGeoJSON = "https://" + cartoUserName + ".carto.com/api/v2/sql?format=GeoJSON&q=";
+
+	//Chuẩn bị lớp bản đồ chứa đối tượng
+	var layerObject = L.layerGroup().addTo(mapObject);
+	
+	//Định các style cho point, line và polygon
+	var pointStyle = L.icon({
+		iconUrl: "css/images/redicon.png",
+		shadowUrl: "css/images/marker-shadow.png",
+		iconAnchor: [13, 41]  //Giữa đáy ảnh 25, 41 (RClick trên ảnh / Properties)
+	});
+	var lineStyle={color: "blue", weight: 2};
+	var polygonStyle={color: "red", fillColor: "yellow", weight: 4};
+	
+	//Hiển thị tất cả đối tượng lên bản đồ
+	var sqlQuery1 = "SELECT name, the_geom FROM dulieumau";
+	$.getJSON(urlGeoJSON + sqlQuery1, function(data) {
+		L.geoJSON(data, {
+			style: function (feature) {	 //qui định style cho các đối tượng
+				switch (feature.geometry.type) {
+					case 'LineString':   return lineStyle;
+					case 'Polygon':   return polygonStyle;
+				}
+			},
+			//Có thể chủ động icon cho point
+			//pointToLayer: function (feature, latlng){
+			//						return L.marker(latlng, {icon:pointStyle});			
+			//},
+			//icon mặc định trong css/images
+			onEachFeature: function(feature, layer) {	//Mỗi đối tượng thêm popup vào
+				if (feature.properties && feature.properties.name) {	//Có properties và có name
+					layer.bindPopup("<i>" + feature.properties.name + "</i>");
+				}
+			}
+		}).addTo(layerObject);
+	});
+
+	//Thêm điều khiển mới là combo box rỗng lên bản đồ
+	var control1 = L.control({position: "topleft"});
+	control1.onAdd = function(map) {
+		var div = L.DomUtil.create("div", "div1");
+		div.innerHTML = '<select id="combobox1"></select>';
+		return div;
+	};
+	control1.addTo(mapObject);
+
+	//Lấy giá trị của cột Name không trùng thêm vào combo box
+	var urlJSON = "https://" + cartoUserName + ".carto.com/api/v2/sql?q=";
+	var sqlQuery2 = "SELECT DISTINCT name FROM dulieumau ORDER BY name";
+	$.getJSON(urlJSON + sqlQuery2, function(data) {
+		var menu = $("#combobox1");
+		menu.append("<option>Tất cả</option>");
+		$.each(data.rows, function(key, value) {
+			menu.append("<option>" + value.name + "</option>");
+		});
+	});
+
+	//Cập nhật đối tượng trên bản đồ khi combo box được chọn
+	$("#combobox1").on("change", function() {
+		var valueSelected = $("#combobox1").val();
+		if (valueSelected=="Tất cả"){
+			var sqlQuery3= "SELECT name, the_geom FROM dulieumau";
+		}else{
+			var sqlQuery3= "SELECT name, the_geom FROM dulieumau " + 
+				"WHERE name = '" + valueSelected + "'";
+			}
+		$.getJSON(urlGeoJSON + sqlQuery3, function(data) {
+			layerObject.clearLayers();
+			L.geoJSON(data, {
+				style: function (feature) {
+					switch (feature.geometry.type) {
+						case 'LineString':   return lineStyle;
+						case 'Polygon':   return polygonStyle;
+					}
+				},
+				onEachFeature: function(feature, drawOject) {
+					drawOject.bindPopup("<i>" + feature.properties.name + "</i>");
+				}
+			}).addTo(layerObject);
+		});
+	});
+	
+</script>
+</html>

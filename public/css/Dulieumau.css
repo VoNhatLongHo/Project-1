@@ -1,0 +1,28 @@
+﻿body {
+    padding: 0;
+    margin: 0;
+}
+
+html, body, #map {
+    height: 1000px;
+    width: 100%;
+}
+
+#save {
+    background-color: blue; /* Green */
+    color: white;
+    border-radius: 50%;
+    padding: 10px 15px;
+    text-align: center;
+    font-size: 18px;
+    box-shadow: -3px 3px orange, -2px 2px orange, -1px 1px orange;
+    border: 1px solid orange;
+}
+
+    #save:hover {
+        background-color: #3e8e41
+    }
+
+    #save:active {
+        transform: translateY(2px)
+    }

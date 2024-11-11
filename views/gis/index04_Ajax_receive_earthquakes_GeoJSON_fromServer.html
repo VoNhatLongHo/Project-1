@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Bản đồ nền</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<!--Download Leaflet: https://unpkg.com/browse/leaflet@1.6.0/dist/ -->
+    <link rel="stylesheet" href="css/leaflet.css">  <!--liên kết css của leaflet-->
+    <script src="js/leaflet.js"></script>			<!--liên kết js của leaflet-->
+	<script src="js/jquery-3.5.1.min.js"></script>
+
+    <style>					<!--tạo style cho trang web-->
+        body {
+            padding: 0;
+            margin: 0;
+        }
+        html, body, #map {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>	<!--thêm thẻ div để chứa bản đồ-->
+</body>
+<script>
+        
+	//Khai báo đối tượng chính chứa bản đồ gắn vào thẻ div tên "map"
+    var mapObject = L.map("map", {center: [10.030249, 105.772097], zoom: 5});
+	//hoặc: var mapObject = L.map('map').setView([10.030249, 105.772097], 17);
+
+	//Bản đồ nền dạng Raster
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", 
+        {attribution: '&copy; <a href="http://' + 
+        'www.openstreetmap.org/copyright">OpenStreetMap</a>'}
+    ).addTo(mapObject);
+	
+	var	url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson"; //động đất
+	//var	url = "https://data.opendevelopmentmekong.net/dataset/259396ca-54c3-4f5b-9b97-3d162d6fd49a/resource/a8572633-1209-488a-8723-d726091e58f5/download/thunhapbinhquan.geojson"; //thu nhập đầu người
+
+	//Nếu lấy từ server online thì thay data/thunhapbinhquan.geojson bằng url ở trên
+	$.getJSON(url, function(data) {
+		//Nạp từng feature, với point lấy ảnh trong css/images
+
+		/*Không có Popup
+		L.geoJSON(data).addTo(mapObject);
+		*/
+		
+		/*Có Popup cách 1*/
+		var layerGroup = L.geoJSON(data, {
+		  onEachFeature: function (feature, layer) {
+			layer.bindPopup('<h1>'+feature.properties.place+'</h1>');
+		  }
+		}).addTo(mapObject);
+		
+		
+		/*Có Popup cách 2
+		L.geoJSON(data).bindPopup((f) => '<h1>'+f.feature.properties.Name_VI+'</h1><p>Income: '+f.feature.properties.Income+'</p>').addTo(mapObject);
+		*/
+	});
+
+</script>
+</html>

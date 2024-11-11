@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>UngdungWeb</title>
+
+    <!-- Bootstrap -->
+    <link href="../vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="../vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Custom Theme Style -->
+    <link href="../build/css/custom.min.css" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="../vendors/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="../vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+
+    @*Sử dụng cho bản đồ*@
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="~/css/leaflet.css">  <!--liên kết css của leaflet-->
+    <script src="~/js/leaflet.js"></script>			<!--liên kết js của leaflet-->
+    <link rel="stylesheet" href="~/css/leaflet.draw.css">
+    <script src="~/js/leaflet.draw.js"></script>
+    <script src="~/js/wkx.js"></script>
+    @*<script src="~/js/jquery.js"></script>*@
+</head>
+
+<body class="nav-md">
+    <div class="container body">
+        <div class="main_container">
+            <div class="col-md-3 left_col">
+                <div class="left_col scroll-view">
+
+                    <!-- menu profile quick info -->
+                    <div id="profile" class="profile clearfix">
+                        <div class="profile_pic">
+                            <a href="~/Home/Index">
+                                <img src="~/images/SanPham.png" class="img-circle profile_img">
+                            </a>
+                        </div>
+                        <div class="profile_info">
+                            <h3>Menu</h3>
+                        </div>
+                    </div>
+                    <!-- /menu profile quick info -->
+
+                    <br />
+
+                    <!-- sidebar menu -->
+                    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                        <div class="menu_section">
+                            <h3>Xem-Thêm-Xóa-Sửa dữ liệu</h3>
+                            <ul class="nav side-menu">
+                                <li>
+                                    <a><i class="fa fa-desktop"></i> Danh mục <span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li><a href="~/DanhMuc/FormLop">Lớp</a></li>
+                                        <li><a href="~/DanhMuc/FormMonHoc">Môn học</a></li>
+                                        <li><a href="~/DanhMuc/FormDulieumau">Dữ liệu mẫu</a></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a><i class="fa fa-edit"></i> Cập nhật <span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li><a href="~/CapNhat/FormNhap">Sinh viên theo lớp</a></li>
+                                        <li><a href="~/CapNhat/FormHoaDon">Sinh viên học môn</a></li>
+                                        <li><a href="~/CapNhat/FormPhieuChi">Điểm theo Lớp - Môn học</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="menu_section">
+                            <h3>Tìm kiếm-Báo cáo-Thống kê</h3>
+                            <ul class="nav side-menu">
+                                <li>
+                                    <a><i class="fa fa-search"></i> Tìm kiếm <span class="fa fa-chevron-down"></span></a>
+                                </li>
+                                <li>
+                                    <a><i class="fa fa-area-chart"></i> Báo cáo <span class="fa fa-chevron-down"></span></a>
+                                </li>
+                                <li>
+                                    <a><i class="fa fa-object-group"></i> Thông số <span class="fa fa-chevron-down"></span></a>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- top navigation -->
+            <div id="top" class="top_nav">
+                <div class="nav_menu">
+                    <nav>
+                        <div class="nav toggle">
+                            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+                        </div>
+                        <h1 id="title">ABC</h1>
+                    </nav>
+                </div>
+            </div>
+            <!-- /top navigation -->
+            <!-- page content -->
+            <div id="content" class="right_col" role="main">
+                @RenderBody()
+            </div>
+            <!-- /page content -->
+            <!-- footer content -->
+            <footer>
+                <div id="bottom" class="pull-right">
+                    Được viết bởi:  <a> Nguyễn Đức Khoa </a>
+                </div>
+                <div class="clearfix"></div>
+            </footer>
+            <!-- /footer content -->
+        </div>
+    </div>
+
+    <!-- Custom Theme Scripts -->
+    <script src="../build/js/custom.min.js"></script>
+
+</body>
+</html>

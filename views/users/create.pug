@@ -1,0 +1,9 @@
+h2 Create new user
+form(action="/users/create" method="POST")
+	label(id="name")
+	input(type="text", placeholder="Your name", name="name")
+	label(id="email")
+	input(type="text", placeholder="Your email address", name="email")
+	label(id="age")
+	input(type="number", placeholder="Your age", name="age")
+	input(type="submit")

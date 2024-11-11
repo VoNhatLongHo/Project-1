@@ -1,0 +1,7 @@
+h2 Edit current user
+form(action="/users/edit" method="POST")
+	input(type="text", placeholder="Your id", name="id", value=user.id, style="width:50px" readonly)
+	input(type="text", placeholder="Your name", name="name", value=user.name)
+	input(type="text", placeholder="Your email address", name="email", value=user.email)
+	input(type="number", placeholder="Your age", name="age", value=user.age, style="width:50px")
+	input(type="submit")

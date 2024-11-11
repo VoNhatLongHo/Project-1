@@ -1,0 +1,83 @@
+﻿
+<script src="~/js/DanhMucLopScripts.js"></script>
+
+@*Bảng để lọc*@
+<table id="filter" style="padding:0 0" class="table table-responsive">
+    <tr class="mycontainer">
+        <td style="padding:0 0; border:none; width:20%; ">
+            <select id="msloptim" class="msloptim form-control"
+                    style="color:blue; text-align:center"></select>
+        </td>
+        <td style="padding:0 0; border:none; width:35%; ">
+            <select id="tenloptim" class="tenloptim form-control"
+                    style="color:blue; text-align:center"></select>
+        </td>
+        <td style="padding:0 0; border:none; width:20%; background-color:antiquewhite">
+            <input type="number" id="sisotoidatimtruoc" value="0"
+                   class="sisotoidatimtruoc form-control"
+                   style="width:48%; display:inline; color:blue; text-align:center" />
+            <input type="number" id="sisotoidatimsau" value="255"
+                   class="sisotoidatimsau form-control"
+                   style="width:48%; display:inline; color:blue; text-align:center" />
+        </td>
+
+        <td style="padding:0 0; border:none">
+            <input id="all" type="button" value="ALL" class="all btn btn-success" />
+        </td>
+    </tr>
+    <tr>
+        <td style="padding:0 0" colspan="2">
+            <input type="text" id="pheptoantim"
+                   style="border:none; text-align:right;color:black; width:100%;"
+                   class="pheptoantim" disabled />
+        </td>
+        <td style="padding:0 0" align="center">
+            <div>
+                <input type="checkbox" value="Truoc" />Trước
+                <input type="checkbox" value="Trong"
+                       id="pheptoanmacdinhtim" checked />Trong
+                <input type="checkbox" value="Ngoai" />Ngoài
+                <input type="checkbox" value="Sau" />Sau
+            </div>
+        </td>
+    </tr>
+
+</table>
+
+@*Bảng để nhập dữ liệu*@
+<table id="input" style="padding:0 0" class="table table-responsive">
+    <tr>
+        <td style="padding:0 0; border:none" align="center">Mã Số Lớp</td>
+        <td style="padding:0 0; border:none" align="center">Tên Lớp</td>
+        <td style="padding:0 0; border:none" align="center">Sĩ số tối đa</td>
+        @*<td style="padding:0 0; border:none" align="center">&nbsp;</td>*@
+    </tr>
+    <tr class="mycontainer" id="mainrow">
+        <td style="padding:0 0; border:none; width:20%">
+            <input type="text" id="mslop" class="mslop form-control" maxlength="6" />
+        </td>
+        <td style="padding:0 0; border:none; width:35%">
+            <input type="text" id="tenlop" class="tenlop form-control" />
+        </td>
+        <td style="padding:0 0; border:none; width:20%; text-align:center">
+            <input type="text" id="sisotoida" class="sisotoida form-control"
+                   style="display:inline; color:blue; text-align:center" />
+        </td>
+        <td style="padding:0 0; border:none">
+            <input id="save" type="button" value="Lưu" class="btn btn-success" />
+        </td>
+    </tr>
+    <tr style="padding:0 0">
+        <td style="padding:0 0; border:none" colspan="2" align="right">
+            <input id="deleteall" type="button"
+                   value="Xóa tất cả các Lớp" class="btn btn-warning" />
+        </td>
+        <td style="padding:0 0; border:none" colspan="3">
+            <input id="update" type="button" value="Cập nhập" class="btn btn-warning" />
+        </td>
+    </tr>
+</table>
+
+@*Bảng để hiển thị chi tiết*@
+<table class="table table-responsive" id="details"></table>
+<span id="orderItemError" style="color:red"></span>
