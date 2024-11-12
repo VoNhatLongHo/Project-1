@@ -1,0 +1,99 @@
+/* Đặt style chung cho trang web */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  h1 {
+    color: #333;
+    margin-top: 20px;
+  }
+  
+  #map {
+    width: 100%;
+    max-width: 1200px; /* Đặt chiều rộng tối đa cho bản đồ */
+    height: 500px;
+    margin: 20px 0;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  #control-panel {
+    width: 100%;
+    max-width: 600px; /* Đặt chiều rộng tối đa cho phần điều khiển */
+    padding: 20px;
+    margin: 0 auto 20px auto; /* Căn giữa phần điều khiển */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  #control-panel h3 {
+    text-align: center;
+    color: #333;
+  }
+  
+  #location-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  #location-form label {
+    font-weight: bold;
+    color: #555;
+  }
+  
+  #location-form input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .button-group {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .add-button,
+  .update-button,
+  .delete-button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #fff;
+    width: 30%; /* Đặt chiều rộng cố định cho các nút */
+  }
+  
+  .add-button {
+    background-color: #4CAF50;
+  }
+  
+  .update-button {
+    background-color: #FF9800;
+  }
+  
+  .delete-button {
+    background-color: #F44336;
+  }
+  
+  .add-button:hover {
+    background-color: #45a049;
+  }
+  
+  .update-button:hover {
+    background-color: #e68a00;
+  }
+  
+  .delete-button:hover {
+    background-color: #d32f2f;
+  }
+  

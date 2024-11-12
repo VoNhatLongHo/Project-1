@@ -1,85 +1,123 @@
-const  mssqloperations= require('../dbconfig/msqloperations');
-const mongodboperations=require('../dbconfig/mongodboperations');
-const wkx=require('wkx');
-module.exports={
-    gis: (req,res)=>{
-        res.sendFile('index01_basemap_raster.html',{root:'./views/gis'});
+// Import các thư viện cần thiết
+const mssqloperations = require('../dbconfig/msqloperations');
+const mongodboperations = require('../dbconfig/mongodboperations');
+const wkx = require('wkx');
+
+module.exports = {
+    // Route để hiển thị trang chính của GIS
+    gis: (req, res) => {
+        res.sendFile('index01_basemap_raster.html', { root: './views/gis' });
     },
-    earthquakes: (req, res)=>{
-        res.sendFile('index04_Ajax_receive_earthquakes_GeoJSON_fromServer.html',{root:'./views/gis'});
+
+    // Route để hiển thị trang về dữ liệu động đất
+    earthquakes: (req, res) => {
+        res.sendFile('index04_Ajax_receive_earthquakes_GeoJSON_fromServer.html', { root: './views/gis' });
     },
-    income: (req, res)=>{
-        res.sendFile('index04_Ajax_receive_income_GeoJSON_fromfile.html',{root:'./views/gis'});
+
+    // Route để hiển thị dữ liệu thu nhập từ file GeoJSON
+    income: (req, res) => {
+        res.sendFile('index04_Ajax_receive_income_GeoJSON_fromfile.html', { root: './views/gis' });
     },
-    iframe: (req, res)=>{
-        res.sendFile('f1.html',{root:'./views/html'});
+
+    // Route để hiển thị trang với iframe
+    iframe: (req, res) => {
+        res.sendFile('f1.html', { root: './views/html' });
     },
-    dbtogeojson: (req, res)=>{
-		/*Để kết nối sql server thành công, cần thực hiện:
-		  - Vào SQL Server bằng window authentication
-		  - Đặt lại pass cho tài khoản sa và enable nó, trong security / login, Rclick/properties trên sa
-		     + Tab General: đặt lại pass
-		     + Tab Status: chọn enable
-		  - Cho phép đăng nhập bằng tài khoản
-		     + Rclick trên tên Server của SQL / Properties
-		     + Chọn Tab Security, chọn SQL server and window authentication mode
-		  - Vào Manage của this PC
-		     + Chọn Service and application / SQL server configuration Manager / SQL server Network configuration / Protocol for ...
-		     + Bật TCP/IP là enabled và kiểm tra IP addresses, mục IPAll đặt TCP Port là 1433
-		  - Restart lại service của SQL server
-		*/
-		
-		//JSON.stringify(req.query)=='{}')
-		//SELECT Id, The_geom.STAsText() Wkt, Name  FROM DULIEUMAU
-		mssqloperations.getDulieumau(req.query.q).then((recordset)=>{
-				try{
-					//Dựng thành chuỗi GeoJson
-				var featurecollection = {
-					"type": "FeatureCollection",
-					"features":[]
-				}
-				for (const Item of recordset) {
-					var feature={
-						"type":'Feature',
-						"geometry": wkx.Geometry.parse(Item.Wkt).toGeoJSON(), //wkt to Geometry
-						"properties": {
-						}
+
+	dbtogeojson: (req, res) => {
+		mssqloperations.getDulieumau(req.query.q)
+			.then((recordset) => {
+				console.log("Recordset from SQL Server:", recordset); // Log dữ liệu từ SQL Server
+				try {
+					if (!recordset || recordset.length === 0) {
+						console.log("No data returned from SQL Server");
+						return res.status(200).send({ type: "FeatureCollection", features: [] });
+					}
+	
+					const featureCollection = {
+						"type": "FeatureCollection",
+						"features": recordset.map(item => {
+							console.log("Processing WKT:", item.Wkt); // Log từng WKT để kiểm tra
+							return {
+								"type": "Feature",
+								"geometry": wkx.Geometry.parse(item.Wkt).toGeoJSON(),
+								"properties": {
+									name: item.Name,
+									// Thêm các thuộc tính khác từ item nếu có
+								}
+							};
+						})
 					};
-
-					Object.entries(Item).forEach(([key, value])=> {
-						if (key !== "Wkt") {
-							feature.properties[key.toLowerCase()]=value; //Thêm kye value mới vào đối tượng Json
-						}
-					});
-
-					featurecollection.features.push(feature);
+					
+					res.json(featureCollection);
+				} catch (error) {
+					console.error("Error converting data to GeoJSON:", error);
+					res.status(500).send({ error: "Failed to convert data to GeoJSON" });
 				}
-					// send records as a response
-				res.send(featurecollection);
-			}
-			catch (err){
-				console.log(err);
-			}
-		});
-    },
-
-    dbname: (req, res)=>{
-		mssqloperations.getDulieumau(req.query.q).then((recordset)=>{
-			res.send(recordset);
-		})
+			})
+			.catch((error) => {
+				console.error("Error in /dbtogeojson request:", error);
+				res.status(500).send({ error: "Internal Server Error" });
+			});
 	},
 	
 
-    gisfromdb:(req,res)=>{
-        res.sendFile('index04_Ajax_receive_fromdb.html',{root:'./views/gis'});
+
+    // Route để lấy dữ liệu từ database và trả về dưới dạng JSON
+    dbname: (req, res) => {
+        mssqloperations.getDulieumau(req.query.q).then((recordset) => {
+            res.send(recordset);
+        }).catch(err => {
+            console.error("Error fetching data:", err);
+            res.status(500).send({ error: "Failed to fetch data" });
+        });
     },
 
-	addtodb:(req,res)=>{
-		q="INSERT INTO DULIEUMAU (The_geom, Name) VALUES (geometry::STGeomFromText('"+req.body.wkt+"', 0), N'"+ req.body.name+"')";
-		mssqloperations.addDulieumau(q).then(()=>res.send('{"success" : "Updated Successfully", "status" : 200}'));
-	},
-		
-	mongo:(req, res)=>{
-		mongodboperations.connectmongodb();
-	}
-}
+    // Route để hiển thị trang nhận dữ liệu từ database
+    gisfromdb: (req, res) => {
+        res.sendFile('index04_Ajax_receive_fromdb.html', { root: './views/gis' });
+    },
+
+    // Route để thêm dữ liệu vào database
+    addtodb: (req, res) => {
+        const query = "INSERT INTO DULIEUMAU (The_geom, Name) VALUES (geometry::STGeomFromText('" + req.body.wkt + "', 0), N'" + req.body.name + "')";
+        mssqloperations.addDulieumau(query).then(() => {
+            res.send({ success: "Inserted Successfully", status: 200 });
+        }).catch(err => {
+            console.error("Error adding data:", err);
+            res.status(500).send({ error: "Failed to add data" });
+        });
+    },
+
+    // Route để kết nối MongoDB (nếu cần thiết cho các thao tác MongoDB)
+    mongo: (req, res) => {
+        mongodboperations.connectmongodb().then(() => {
+            res.send("Connected to MongoDB");
+        }).catch(err => {
+            console.error("Error connecting to MongoDB:", err);
+            res.status(500).send({ error: "Failed to connect to MongoDB" });
+        });
+    },
+
+    // Route để cập nhật dữ liệu trong database (sửa điểm GIS)
+    updateLocation: (req, res) => {
+        const query = "UPDATE DULIEUMAU SET The_geom = geometry::STGeomFromText('" + req.body.wkt + "', 0), Name = N'" + req.body.name + "' WHERE Id = " + req.body.id;
+        mssqloperations.updateDulieumau(query).then(() => {
+            res.send({ success: "Updated Successfully", status: 200 });
+        }).catch(err => {
+            console.error("Error updating data:", err);
+            res.status(500).send({ error: "Failed to update data" });
+        });
+    },
+
+    // Route để xóa dữ liệu trong database (xóa điểm GIS)
+    deleteLocation: (req, res) => {
+        const query = "DELETE FROM DULIEUMAU WHERE Id = " + req.body.id;
+        mssqloperations.deleteDulieumau(query).then(() => {
+            res.send({ success: "Deleted Successfully", status: 200 });
+        }).catch(err => {
+            console.error("Error deleting data:", err);
+            res.status(500).send({ error: "Failed to delete data" });
+        });
+    }
+};

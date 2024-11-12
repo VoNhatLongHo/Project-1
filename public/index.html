@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bản đồ nền</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    <style>
+        body, html, #map { height: 100%; width: 100%; margin: 0; padding: 0; }
+        #save { background-color: blue; color: white; border-radius: 50%; padding: 10px 15px; font-size: 18px; border: 1px solid orange; }
+        #save:hover { background-color: #3e8e41; }
+        #save:active { transform: translateY(2px); }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+<script>
+    // Khởi tạo bản đồ
+    var mapObject = L.map("map", {center: [10.030249, 105.772097], zoom: 17});
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(mapObject);
+    
+    // Cấu hình Carto
+    var cartoUserName = "thunbergii";  // Thay đổi với username của bạn
+    var urlGeoJSON = `https://${cartoUserName}.carto.com/api/v2/sql?format=GeoJSON&q=`;
+    var apiKey = "your_carto_api_key"; // Thay bằng API key của bạn
+    var sqlQuery = "SELECT name, the_geom FROM dulieumau";
+    
+    var layerObject = L.layerGroup().addTo(mapObject);
+    
+    // Style cho các đối tượng
+    var pointStyle = L.icon({iconUrl: "css/images/redicon.png", shadowUrl: "css/images/marker-shadow.png", iconAnchor: [13, 41]});
+    var lineStyle = {color: "red", weight: 2};
+    var polygonStyle = {color: "red", fillColor: "yellow", weight: 4};
+    
+    // Hiển thị dữ liệu từ Carto
+    $.getJSON(urlGeoJSON + sqlQuery, function(data) {
+        L.geoJSON(data, {
+            style: function(feature) {
+                switch (feature.geometry.type) {
+                    case 'LineString': return lineStyle;
+                    case 'Polygon': return polygonStyle;
+                }
+            },
+            onEachFeature: function(feature, layer) {
+                if (feature.properties && feature.properties.name) {
+                    layer.bindPopup("<i>" + feature.properties.name + "</i>");
+                }
+            },
+            pointToLayer: function(feature, latlng) {
+                return L.marker(latlng, {icon: pointStyle});
+            }
+        }).addTo(layerObject);
+    });
+
+    // Thêm công cụ vẽ
+    var drawnItems = L.featureGroup().addTo(mapObject);
+    new L.Control.Draw({
+        edit: { featureGroup: drawnItems }
+    }).addTo(mapObject);
+
+    var layer = new L.Layer();
+
+    // Nút Save
+    var control = L.control({position: "topright"});
+    control.onAdd = function(map) {
+        var div = L.DomUtil.create("div", "divsave");
+        div.innerHTML = '<input type="button" id="save" value="Save">';
+        return div;
+    };
+    control.addTo(mapObject);
+
+    // Khi đối tượng được vẽ xong
+    mapObject.on("draw:created", function(e) {
+        layer = e.layer;
+        layer.addTo(drawnItems);
+        var popupContent = 
+            '<form>' + 
+            'Name:<br><input type="text" id="input_name" value=""><br>' +
+            '<input type="button" value="Submit" id="submit">' + 
+            '</form>';
+        layer.bindPopup(popupContent).openPopup();
+    });
+
+    // Xử lý khi form Submit
+    $("body").on("click", "#submit", addprops);
+    
+    function addprops() {
+        layer.feature = { type: "Feature", properties: { name: $("#input_name").val() } };
+        layer.closePopup();
+        layer.bindPopup(layer.feature.properties.name).closePopup();
+    }
+
+    // Khi nhấn nút Save để lưu vào Carto
+    $("#save").on("click", function() {
+        drawnItems.eachLayer(function(layer) {
+            var drawing = JSON.stringify(layer.toGeoJSON().geometry),
+                geo = layer.toGeoJSON();
+
+            var sql = `INSERT INTO dulieumau (the_geom, name) VALUES (ST_SetSRID(ST_GeomFromGeoJSON('${drawing}'), 4326), '${geo.properties.name}')`;
+
+            $.post({
+                url: `https://${cartoUserName}.carto.com/api/v2/sql`,
+                data: {"q": sql, "api_key": apiKey},
+                dataType: "json",
+                success: function() {
+                    console.log("Dữ liệu đã được lưu vào Carto");
+                    loadCartoData(); // Tải lại dữ liệu từ Carto
+                },
+                error: function() {
+                    console.log("Có lỗi khi lưu dữ liệu vào Carto");
+                }
+            });
+        });
+        drawnItems.clearLayers();
+    });
+
+    // Hàm load dữ liệu từ Carto
+    function loadCartoData() {
+        layerObject.clearLayers();
+        $.getJSON(urlGeoJSON + sqlQuery, function(data) {
+            L.geoJSON(data, {
+                style: function(feature) {
+                    switch (feature.geometry.type) {
+                        case 'LineString': return lineStyle;
+                        case 'Polygon': return polygonStyle;
+                    }
+                },
+                onEachFeature: function(feature, layer) {
+                    if (feature.properties && feature.properties.name) {
+                        layer.bindPopup("<i>" + feature.properties.name + "</i>");
+                    }
+                },
+                pointToLayer: function(feature, latlng) {
+                    return L.marker(latlng, {icon: pointStyle});
+                }
+            }).addTo(layerObject);
+        });
+    }
+
+</script>
+</html>
